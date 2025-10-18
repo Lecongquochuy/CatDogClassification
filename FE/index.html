@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cat / Dog Classifier</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🐾 Cat / Dog Classifier</h1>
+
+  <div class="container">
+    <!-- Cột bên trái: Upload + Preview -->
+    <div class="left">
+      <label for="fileInput" class="upload-label">Chọn ảnh</label>
+      <input id="fileInput" type="file" accept="image/*" hidden />
+      <img id="preview" class="preview" src="" alt="Ảnh xem trước" />
+      <button id="uploadBtn" class="btn">Upload & Predict</button>
+    </div>
+
+    <!-- Cột bên phải: Kết quả -->
+    <div class="right">
+      <h2>Kết quả</h2>
+      <div class="result" id="result">Chưa có kết quả</div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
