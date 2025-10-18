@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from model import load_model, predict_image
+from model import get_model, predict_image
 from PIL import Image
 from flask_cors import CORS
 import io
@@ -7,27 +7,34 @@ import io
 app = Flask(__name__)
 CORS(app)
 
-model, transform = load_model('best_model.pth')
+MODEL_PATHS = {
+    "cnn": "weights/best_model.pth",
+    "resnet": "weights/resnet_weight.pth",
+    "mobilenet": "weights/mobilenet_weight.pth",
+    "efficientnet": "weights/efficientnet_weight.pth",
+}
+
+# model, transform = load_model('weights/best_model.pth')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if 'image' not in request.files:
-        print("⚠️ Không có file 'image' trong request.files")
-        return jsonify({'Error': 'no image upload'}), 400
+    file = request.files.get('image')
+    model_name = request.form.get('model', 'cnn')
+    weight_path = MODEL_PATHS.get(model_name, MODEL_PATHS['cnn'])
 
-    file = request.files['image']
-    img_bytes = file.read()
+    if not file:
+        return jsonify({'error': 'No image uploaded'}), 400
 
+    # Load model + transform
     try:
-        img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+        model, transform = get_model(model_name, weight_path)
     except Exception as e:
-        print("⚠️ Ảnh không hợp lệ:", e)
-        return jsonify({'error': 'invalid image', 'detail': str(e)}), 400
+        return jsonify({'error': str(e)}), 400
 
-    label, probs = predict_image(model, transform, img)
-    print(f"✅ Predict: {label} | probs = {probs}")
+    image = Image.open(file).convert('RGB')
+    label, probs = predict_image(model, transform, image)
+
     return jsonify({'label': label, 'probabilities': probs})
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8001, debug=True)

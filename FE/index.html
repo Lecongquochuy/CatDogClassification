@@ -12,6 +12,14 @@
   <div class="container">
     <!-- Cột bên trái: Upload + Preview -->
     <div class="left">
+      <label for="modelSelect">Chọn model:</label>
+      <select id="modelSelect" class="btn">
+        <option value="cnn">CNN Custom</option>
+        <option value="resnet">ResNet18</option>
+        <option value="mobilenet">MobileNetV2</option>
+        <option value="efficientnet">EfficientNetB0</option>
+      </select>
+      <br><br>
       <label for="fileInput" class="upload-label">Chọn ảnh</label>
       <input id="fileInput" type="file" accept="image/*" hidden />
       <img id="preview" class="preview" src="" alt="Ảnh xem trước" />

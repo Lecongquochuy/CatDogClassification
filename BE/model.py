@@ -3,7 +3,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 import torch.nn.functional as F
 
-model_path = 'best_model.pth'
+model_path = 'weights/best_model.pth'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -38,27 +38,72 @@ class CNN(nn.Module):
         x = self.dropout(x)
         x = self.fc2(x)
         return x
-def load_model(path=model_path):
-    model = CNN()
-    model.load_state_dict(torch.load(path, map_location=device))
+
+def get_model(model_name, weight_path):
+    if model_name == "cnn":
+        model = CNN()
+        transform = transforms.Compose([
+            transforms.Resize((256, 256)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        ])
+    elif model_name == "resnet":
+        model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
+        in_features = model.fc.in_features
+        model.fc = nn.Linear(in_features, 1)
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406],
+                                 [0.229, 0.224, 0.225])
+        ])
+    elif model_name == "mobilenet":
+        model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.IMAGENET1K_V1)
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_features, 1)
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406],
+                                 [0.229, 0.224, 0.225])
+        ])
+    elif model_name == "efficientnet":
+        model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.IMAGENET1K_V1)
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_features, 1)
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406],
+                                 [0.229, 0.224, 0.225])
+        ])
+    else:
+        raise ValueError("Unsupported model")
+
+    model.load_state_dict(torch.load(weight_path, map_location=device))
     model.to(device)
     model.eval()
 
-    transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                             std=[0.5, 0.5, 0.5])
-    ])
     return model, transform
 
 def predict_image(model, transform, pil_image):
     device = next(model.parameters()).device
     x = transform(pil_image).unsqueeze(0).to(device)
+    classes = ['cat','dog']
 
     with torch.no_grad():
         logits = model(x)
-        probs = torch.softmax(logits, dim=1)[0]
-        classes = ['cat', 'dog']
-        idx = torch.argmax(probs).item()
-        return classes[idx], {classes[i]: float(probs[i]) for i in range(2)}
+        if logits.shape[1] == 1:
+            # binary output -> sigmoid
+            prob_dog = torch.sigmoid(logits)[0,0].item()
+            label = 'dog' if prob_dog > 0.5 else 'cat'
+            probs = {'cat': 1-prob_dog, 'dog': prob_dog}
+        else:
+            # multi-class output -> softmax
+            probs_tensor = torch.softmax(logits, dim=1)[0]
+            idx = torch.argmax(probs_tensor).item()
+            label = classes[idx]
+            probs = {classes[i]: float(probs_tensor[i]) for i in range(len(classes))}
+
+    return label, probs
