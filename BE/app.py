@@ -5,7 +5,7 @@ from flask_cors import CORS
 import io
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://cat-dog-classification-beryl.vercel.app/"])
 
 MODEL_PATHS = {
     "cnn": "weights/best_model.pth",

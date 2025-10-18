@@ -24,7 +24,7 @@ uploadBtn.addEventListener('click', async () => {
   resultDiv.innerHTML = '⏳ Đang dự đoán...';
 
   try {
-    const res = await fetch('http://localhost:8001/predict', {
+    const res = await fetch('https://catdogclassification-h3ik.onrender.com/predict', {
       method: 'POST',
       body: form
     });
