@@ -3,7 +3,7 @@ const preview = document.getElementById('preview');
 const uploadBtn = document.getElementById('uploadBtn');
 const resultDiv = document.getElementById('result');
 const modelSelect = document.getElementById('modelSelect');
-
+const server_path = 'https://catdogclassification-0akt.onrender.com/predict';
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if (!file) return;
@@ -24,7 +24,7 @@ uploadBtn.addEventListener('click', async () => {
   resultDiv.innerHTML = '⏳ Đang dự đoán...';
 
   try {
-    const res = await fetch('https://catdogclassification-0akt.onrender.com', {
+    const res = await fetch(server_path, {
       method: 'POST',
       body: form
     });
