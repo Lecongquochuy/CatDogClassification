@@ -86,4 +86,14 @@ Cập nhật đường dẫn đến tập dữ liệu cá nhân mà bạn muốn
 
 Kết quả đánh giá (accuracy) sẽ được in trực tiếp ra terminal.
 
+## 📦 Tải trọng số mô hình và quá trình huấn luyện
+
+Bạn có thể truy cập đường dẫn sau để tải **trọng số mô hình (model weights)** và **quá trình huấn luyện (training logs)**:
+
+👉 [Google Drive - CatDogClassification Weights & Training](https://drive.google.com/drive/folders/1TzAB7TjuIqCj7YetzLqbSfcoWrlhBCJZ?usp=drive_link)
+
+> 💡 **Lưu ý:**  
+> - Sau khi tải trọng số về, đặt file `.pth` vào đúng thư mục mà `model.py` hoặc `main.py` sử dụng.  
+> - Đảm bảo tên file và đường dẫn trong code trùng khớp để tránh lỗi `FileNotFoundError`.  
+> - Bạn có thể xem lại lịch sử huấn luyện (loss, accuracy, epoch, v.v.) trong thư mục log để tham khảo quá trình training.
 
